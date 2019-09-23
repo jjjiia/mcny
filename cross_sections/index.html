@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-114003436-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-114003436-1');
+  </script>
+  
+    <meta charset='utf-8' />
+    <title>crossSections.js</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.2.0/mapbox-gl-geocoder.min.js'></script>
+    
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.0/mapbox-gl-draw.js'></script>
+   <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'></script>
+   <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.0/mapbox-gl-draw.js'></script>
+   <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.0/mapbox-gl-draw.css' type='text/css'/>
+   
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.0/mapbox-gl.css' rel='stylesheet' />
+	<script src="static/javascripts/d3.v4.min.js"></script>
+	<script src="static/javascripts/topojson.v1.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="static/javascripts/jquery.min.js"></script>
+	<script src="static/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="static/javascripts/queue.v1.min.js"></script>
+	<script src="static/javascripts/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="static/stylesheets/jquery-ui.css" />
+	<link rel="stylesheet" href="static/bootstrap-3.1.1-dist/css/bootstrap.min.css">
+	<script src="static/javascripts/tooltip.js"></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.1.1/mapbox-gl-directions.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.1.1/mapbox-gl-directions.css' type='text/css' />
+<style>
+  .mapbox-form-label{
+    background-color:#fff;
+  }
+  .directions-icon-arrive {
+    background-color:#aaa;
+    border:1px solid white;
+  }
+  .directions-icon-depart{
+    background-color:#aaa;
+    border:1px solid white;
+  }
+  .tabs{
+    position:absolute;
+    top:100px;
+    transform: 
+        translate(25px, 51px)
+        rotate(315deg);
+      width: 30px;
+  }
+  .chart{
+    font-size:12px;
+    font-weight:bold;
+    color:#000000;
+  }
+  body{
+  }
+  #map{
+    position:fixed;
+    top:0px;
+    height:100%;
+    width:100%; 
+    left:0px;
+    border-left:1px solid black;
+  }
+  #features{
+    position:absolute;
+    left:20px;
+    top:20px;
+    width:300px;
+    
+  }
+ /*
+  #charts{
+     position:fixed;
+    left:0px;
+    width:30%;
+     padding:5px;
+     top:60px;
+     background-color:rgba(255,255,255,.7);
+     cursor:pointer;
+     z-index:999;
+   }*/
+ 
+  .panel{
+    position:absolute;
+    right:0px;
+    top:0px;
+  }
+  .mapboxgl-ctrl-geocoder input[type='text']{
+    height:25px;
+  }
+  .mapbox-form-label .directions-icon{
+    height:25px;
+    width:25px;
+    color:#000000;
+  }
+  .mapbox-directions-origin .mapbox-form-label{
+    height:25px;
+    width:25px;
+    padding:0px;
+  }
+   .mapbox-directions-destination .mapbox-form-label{
+     height:25px;
+     width:25px;
+     padding:0px;
+   }
+  .mapbox-gl-draw_ctrl-draw > button {
+    border-color:rgba(0,0,0,0.9);
+    color:rgba(255,255,255,0.5);
+    width:30px;
+    height:30px;
+  }
+  .directions-icon{
+    vertical-align:top;
+  }
+  .mapbox-directions-component-keyline {
+      box-shadow: none;
+      border-radius: 3px;
+  }
+  .mapbox-directions-profile{
+    background:rgba(0,0,0,0);
+    border:none;
+  }
+  .mapboxgl-ctrl-geocoder .geocoder-pin-right{
+    top:0px;
+  }
+  .mapbox-directions-profile label{
+   padding:2px;
+  }
+  .d3-tip {
+    line-height: 1;
+    padding: 6px;
+    background: rgba(255,255,255, 0.8);
+    color: #000;
+    border:1px solid black;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index:999999;
+  }
+  #toggle{
+    z-index:2;
+    position:absolute;
+    top:10px;
+    left:320px;
+    background-color:white;
+    border:2px solid #dedede;
+    padding:10px;
+    border-radius:4px;
+    font-size:12px;
+    color:rgba(0,0,0,.5);
+  }
+.mapboxgl-ctrl-scale{
+  border:1px solid black;
+  padding:0px;
+  padding-left:3px;
+}
+#zoom{
+  position:absolute;
+  bottom:180px;
+  left:0%;
+  font-size:11px;
+  width:80px;
+  padding:5px;
+  background-color:rgba(255,255,255,.5);
+}
+#panelSelection{
+  position:absolute;
+  top:0px;
+  width:30%;
+  left:0px;
+  height:60px;
+  padding:10px;
+  background-color:rgba(255,255,255,.7);
+  border-bottom:1px solid black;
+}
+.mapboxgl-ctrl-group button{
+  border:1px solid black;
+  border-radius:2px;
+}
+#initial{
+  position:absolute;
+  left:40%;
+  top:130px;
+  padding:20px;
+  font-size:30px;
+  color:red;
+}
+.mapboxgl-ctrl-top-left{
+  background-color:#fff;
+  border:1px solid black;
+  padding:5px;
+  margin:5px;
+}
+</style>
+</head>
+<body>
+
+<div id='map'></div>
+<div id='features'></div>
+<!--
+<div id="panelSelection">All the routes you have made, click to view a route:<br/></div>
+-->
+<!--
+<div id='charts'></div>
+-->
+<div id='initial'>Here is my daily commute from Jackson Heights <br/>to the West Village in New York City. 
+  <br/><br/>
+  How does yours look?</div>
+<div id="heart">
+
+  <div>
+<script>
+  var width = $(window).innerWidth()
+  //console.log(width)
+//  d3.select("#map").style("width",width-200)
+</script>
+<script src="directions_crossSections.js"></script>
+<div id= "zoom"></div>
+</body>
+</html>
