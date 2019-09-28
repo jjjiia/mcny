@@ -186,6 +186,14 @@
   border:1px solid black;
   border-radius:2px;
 }
+#loader{
+    width:100%;
+    height:100%;
+    position:fixed;
+    left:0px;
+    top:0px;
+    background-color:#000000;
+}
 #initial{
   position:absolute;
   left:40%;
@@ -212,12 +220,11 @@
 <!--
 <div id='charts'></div>
 -->
-<div id='initial'>Here is my daily commute from Jackson Heights <br/>to the West Village in New York City. 
+<div id='initial'>Here is census data along my daily commute from Jackson Heights to the West Village in New York City. 
   <br/><br/>
-  How does yours look?</div>
-<div id="heart">
-
-  <div>
+  How does yours look? Click to draw new paths</div>
+  
+<div id="#loader"></div>
 <script>
   var width = $(window).innerWidth()
   //console.log(width)

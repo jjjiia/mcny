@@ -22,37 +22,36 @@ var lineCount = 0
   var circleColor = "red"
     var  pan =false
 var dataDictionary = null
+  var directions
   var tractsMax=10
   var tractsMin=8
   var countiesMax=8
+  
+  
+  var start = null
+  var end = null
 //var tractFormatted =null
 //var countyFormatted =null
 //var blockgroupFormatted =null
-  var lastClickedCoord
 var valueCategories = ["T012_001","T012_002","T012_003","T057_001"]//not percents 
 function dataDidLoad(error,dataDictionaryFile){
     //tractFormatted = convertDataToDict(tract)
     //countyFormatted = convertDataToDict(county)
     //blockgroupFormatted = convertDataToDict(blockgroup)
     dataDictionary = dataDictionaryFile
-    var bounds = [
-        [ -74.7, 40], // Southwest coordinates
-        [-73.0, 40.9]  // Northeast coordinates
-    ];
+
    mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/jjjiia123/cjdkrxmwl008v2to3t0e8g0k0',
         center: [-73.95,40.729],
         zoom:12,
-        minZoom:10,
-        maxZoom:18,
-        pitch: 60//, // pitch in degrees
+        minZoom:3,
+
+        pitch: 60 // pitch in degrees
         //bearing: -20, // bearing in degrees
-//        maxBounds: bounds // Sets bounds as max
         
     });
-   // map["dragPan"].disable()
     
     var bounds = [
         [ -74.7, 40], // Southwest coordinates
@@ -61,16 +60,49 @@ function dataDidLoad(error,dataDictionaryFile){
     
     map.setMaxBounds(bounds)
     
-   var directions = new MapboxDirections({
+    directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       steps: true,
       geometries: 'polyline',
         profile:"walking",
-      controls: {instructions: false, inputs:false}
+      controls: {instructions: false}
     });
+   // map["dragPan"].disable()
+    $("#mapboxgl-ctrl-geocoder").val("a")
+    
+    
+    
+    // create a function to make a directions request
+    function getRoute(start, end) {
+      // make a directions request using cycling profile
+      // an arbitrary start will always be the same
+      // only the end or destination will change
+      var start = start;
+      var url = 'https://api.mapbox.com/directions/v5/mapbox/cycling/' + start[0] + ',' + start[1] + ';' + end[0] + ',' + end[1] + '?steps=true&geometries=geojson&access_token=' + mapboxgl.accessToken;
+
+      // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+      var req = new XMLHttpRequest();
+      req.responseType = 'json';
+      req.open('GET', url, true);
+      req.onload = function() {
+        var data = req.response.routes[0];
+        var route = data.geometry.coordinates;
+        var geojson = {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: route
+          }
+        };
+        console.log(route)
+    }
+    
+    start =[-73.89117799999997,40.74687199]
+    end = [-73.9984,40.72873400000003]
+     getRoute(start,end);
     
     map.on("move",function(){
-        console.log(map.getZoom())
         var zoomLevel = Math.round(map.getZoom()*100)/100
         if(zoomLevel<countiesMax){
             d3.select("#zoom").html("counties are queried at zoom level "+zoomLevel)
@@ -80,14 +112,13 @@ function dataDidLoad(error,dataDictionaryFile){
             d3.select("#zoom").html("blockgroups are queried at zoom level "+zoomLevel)   
         }
     })    
-    map.addControl(directions, 'top-left');
+    //map.addControl(directions, 'top-left');
     map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'}),"bottom-left"); 
     map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'metric'}),"bottom-left"); 
     map.addControl(new mapboxgl.NavigationControl(),"bottom-left");
-        d3.select(".mapboxgl-ctrl-top-left").remove()
     
     map.on('load', function() {        
-        map.setFilter("bg-hover-highlight", ["==", "AFFGEOID", ""]);                    
+       map.setFilter("bg-hover-highlight", ["==", "AFFGEOID", ""]);                    
        map.setFilter("county-hover-highlight", ["==", "AFFGEOID", ""]);                                     
        map.setFilter("tract-hover-highlight", ["==", "AFFGEOID", ""]); 
         d3.selectAll(".mapbox-directions-profile").remove()
@@ -95,8 +126,9 @@ function dataDidLoad(error,dataDictionaryFile){
        // map.setFilter("tracts", ["==", "AFFGEOID", ""]); 
        // map.setFilter("blockgroups", ["==", "AFFGEOID", ""]);                    
        // map.setFilter("counties", ["==", "AFFGEOID", ""]);   
+       d3.select("#initial").transition().duration(2000).delay(3000).style("opacity",0).remove()
         
-        setInitialRoute(map)
+     //   setInitialRoute(map)
         
         var zoomLevel = Math.round(map.getZoom()*100)/100
         if(zoomLevel<countiesMax){
@@ -124,10 +156,7 @@ function dataDidLoad(error,dataDictionaryFile){
         map.setFilter( "directions-hover-point", ["==", "AFFGEOID", ""]); 
         map.setFilter( "directions-waypoint-point", ["==", "AFFGEOID", ""]); 
        d3.selectAll(".geocoder-icon-close").style("top","3px")
-                                    
-                                    
-                                    
-        lastClickedCoord =   [-73.9984,40.72873400000003]           
+                                                 
         getDirectionsData(directions,map)
     })
 }
@@ -171,8 +200,9 @@ function setInitialRoute(map){
 //    drawPath(geoids,map,map.getZoom())
 }
 function getDirectionsData(directions,map){         
-    //console.log(directions)
-    //console.log(map.getStyle().layers)    
+    console.log(directions)
+    console.log(map.getStyle().layers)
+    
     directions.on('route', function (ev) {
         d3.select("#initial").remove()
         lineCount+=1
@@ -194,7 +224,7 @@ function getDirectionsData(directions,map){
               }, new mapboxgl.LngLatBounds(directionsPath[0], directionsPath[0]));
 
       map.fitBounds(bounds, {
-          padding: 400         
+          padding: 200         
       });
       map.on("moveend",function(){
          
@@ -230,18 +260,7 @@ function getDirectionsData(directions,map){
             }
         }      
         getPathDataFromFile(geoids,map,map.getZoom())
-    
     }) 
-    
-    map.on("click",function(e){
-   //     console.log(e)
-       d3.select("#initial").transition().duration(2000).delay(3000).style("opacity",0).remove()
-        directions.setOrigin(lastClickedCoord)
-        lastClickedCoord = [e.lngLat.lng, e.lngLat.lat]
-        directions.setDestination([e.lngLat.lng, e.lngLat.lat])
-    })
-
-
 }
 
 function addPointsForSmoothing(directionsPath){
@@ -493,47 +512,8 @@ function drawPath(geoids,map,data,drawnZoom){
         d3.selectAll(".panelicon").style("border","4px solid #ffffff")
         d3.select(".icon_"+panel).style("border","1px solid #ffffff")
     })
-    
-   // var panelDiv = d3.select("#charts").append("div").attr("class",panel+" panel")
-   // .style("z-index", panelZ)//.style("top",lineCount*15+"px")
-   //// .style("border","1px solid "+colors[lineCount])
-   // .style("background-color","rgba(255,255,255,.95)")
-   // .style("margin","5px")
-   //     .style("margin-left",lineCount*3+"px")
-    
-    
-    //d3.select("."+panel).append("div").html("&#10005").style("color",lineColor).style("font-size","40px")
-    //    .style("float","right")
-    //    .style("padding-right","5px")
-    //    .attr("class",panel)
-    //    .on("click",function(){            
-    //        var className = d3.select(this).attr("class")
-    //        var lineClass = className.split("_")[1]
-    //        console.log(lineClass)
-    //        d3.select(".panel_"+lineClass).remove()
-    //        d3.select(".icon_panel_"+lineClass).remove()
-    //        map.removeLayer("centroids_"+lineClass)
-    //        map.removeLayer("route_"+lineClass)
-    //        map.removeLayer("start_"+lineClass)
-    //        map.removeLayer("start_label_"+lineClass)
-    //        map.removeLayer("mouse_"+lineClass)            
-    //    })
-  /*
-    
-      for(var k in dataDictionary){
-          var title = dataDictionary[k]
-          drawChart(distances,data,geoids,k,map, dataDictionary,panel,drawnZoom)
-      }
-      */
-    //    document.getElementsByClassName("mapbox-directions-origin").value="none"
-  
+ 
     var incomeCode = "E_T057_001"
-  //console.log(document.getElementsByClassName("mapboxgl-ctrl-geocoder"))
-  //console.log(document.getElementsByClassName("mapbox-directions-origin"))
-  //console.log(document.getElementsByClassName("mapboxgl-ctrl-geocoder"))
-  //  //console.log(geoids)
-  //  console.log(dataDictionary)
-    //console.log(data)
 }
 function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){    
         
