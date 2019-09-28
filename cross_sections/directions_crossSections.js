@@ -67,7 +67,7 @@ function dataDidLoad(error,dataDictionaryFile){
     });
     
     map.on("move",function(){
-        console.log(map.getZoom())
+       //, console.log(map.getZoom())
         var zoomLevel = Math.round(map.getZoom()*100)/100
         if(zoomLevel<countiesMax){
             d3.select("#zoom").html("counties are queried at zoom level "+zoomLevel)
@@ -138,7 +138,7 @@ function setInitialRoute(map){
     var geoids = []
     var featureList = []
     var zoomLevel = map.getZoom()
-        path = addPointsForSmoothing(path)
+      //  path = addPointsForSmoothing(path)
     
    // console.log(path)
     for(var k in path){        
@@ -393,6 +393,7 @@ function getDistances(pathDataId){
     for(var i =0; i <pathDataId.length-1; i++){
         
         if(i<pathDataId.length){
+            console.log(pathDataId[i])
         //    console.log(i)
       //  console.log(pathDataId[parseInt(i+1)])
             var gid1 = pathDataId[i][0]
@@ -400,9 +401,11 @@ function getDistances(pathDataId){
             var coord1 = pathDataId[i][1]
             var coord2 = pathDataId[i+1][1]
             var d = getDistance(coord1[1],coord1[0],coord2[1],coord2[0])
+            console.log(d)
             totalDistance+=d
             distanceDictionary[gid2]=totalDistance
         }
+        console.log(totalDistance)
     }
     
   //  console.log(pathDataId)
@@ -484,49 +487,49 @@ function drawPath(geoids,map,data,drawnZoom){
         panelZ +=2
     
     
-    d3.select("#panelSelection").append("div").attr("class","icon_"+panel+" panelicon").style("width","20px").style("height","20px")
-    .style("border-radius","10px")
-    .style("margin","2px").style("background-color",lineColor).style("display","inline-block")
-    .style("border","1px solid #ffffff")
-    .style("cursor","pointer")
-    .on("click",function(){
-        panelZ +=1
-        d3.select("."+panel).style("z-index", panelZ)
-        d3.selectAll(".panelicon").style("border","4px solid #ffffff")
-        d3.select(".icon_"+panel).style("border","1px solid #ffffff")
-    })
+  //  d3.select("#panelSelection").append("div").attr("class","icon_"+panel+" panelicon").style("width","20px").style("height","20px")
+  //  .style("border-radius","10px")
+  //  .style("margin","2px").style("background-color",lineColor).style("display","inline-block")
+  //  .style("border","1px solid #ffffff")
+  //  .style("cursor","pointer")
+  //  .on("click",function(){
+  //      panelZ +=1
+  //      d3.select("."+panel).style("z-index", panelZ)
+  //      d3.selectAll(".panelicon").style("border","4px solid #ffffff")
+  //      d3.select(".icon_"+panel).style("border","1px solid #ffffff")
+  //  })
     
-   // var panelDiv = d3.select("#charts").append("div").attr("class",panel+" panel")
-   // .style("z-index", panelZ)//.style("top",lineCount*15+"px")
-   //// .style("border","1px solid "+colors[lineCount])
-   // .style("background-color","rgba(255,255,255,.95)")
-   // .style("margin","5px")
-   //     .style("margin-left",lineCount*3+"px")
+    var panelDiv = d3.select("#charts").append("div").attr("class",panel+" panel")
+    .style("z-index", panelZ)//.style("top",lineCount*15+"px")
+   // .style("border","1px solid "+colors[lineCount])
+    .style("background-color","rgba(255,255,255,.95)")
+    .style("margin","5px")
+        .style("margin-left",lineCount*3+"px")
     
     
-    //d3.select("."+panel).append("div").html("&#10005").style("color",lineColor).style("font-size","40px")
-    //    .style("float","right")
-    //    .style("padding-right","5px")
-    //    .attr("class",panel)
-    //    .on("click",function(){            
-    //        var className = d3.select(this).attr("class")
-    //        var lineClass = className.split("_")[1]
-    //        console.log(lineClass)
-    //        d3.select(".panel_"+lineClass).remove()
-    //        d3.select(".icon_panel_"+lineClass).remove()
-    //        map.removeLayer("centroids_"+lineClass)
-    //        map.removeLayer("route_"+lineClass)
-    //        map.removeLayer("start_"+lineClass)
-    //        map.removeLayer("start_label_"+lineClass)
-    //        map.removeLayer("mouse_"+lineClass)            
-    //    })
-  /*
-    
+  //  d3.select("."+panel).append("div").html("&#10005").style("color",lineColor).style("font-size","40px")
+  //      .style("float","right")
+  //      .style("padding-right","5px")
+  //      .attr("class",panel)
+  //      .on("click",function(){            
+  //          var className = d3.select(this).attr("class")
+  //          var lineClass = className.split("_")[1]
+  //          d3.select(".panel_"+lineClass).remove()
+  //          d3.select(".icon_panel_"+lineClass).remove()
+  //          map.removeLayer("centroids_"+lineClass)
+  //          map.removeLayer("route_"+lineClass)
+  //          map.removeLayer("start_"+lineClass)
+  //          map.removeLayer("start_label_"+lineClass)
+  //          map.removeLayer("mouse_"+lineClass)            
+  //      })
+  
+    d3.selectAll("#charts svg").remove()
       for(var k in dataDictionary){
           var title = dataDictionary[k]
           drawChart(distances,data,geoids,k,map, dataDictionary,panel,drawnZoom)
+          break
       }
-      */
+     
     //    document.getElementsByClassName("mapbox-directions-origin").value="none"
   
     var incomeCode = "E_T057_001"
@@ -555,7 +558,7 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
     var title = dataDictionary[column]
     svg.append("text").text(title).attr("x",10).attr("y",20)
     
-    svg.append("text").text(Math.round(distances.total*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineColor)
+   // svg.append("text").text(Math.round(distances.total*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineColor)
     svg.append("text").text("A").attr("x",margin*2).attr("y",height-10).style("fill",lineColor)
     svg.append("text").text("B").attr("x",width-margin).attr("y",height-10).style("fill",lineColor)
 
@@ -644,6 +647,7 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
           })
           .attr('r',7)
           .on('mouseover', function(d){
+              console.log(d)
               //  if(drawnZoom<countiesMax){
           //        map.setFilter("county", ["==",  "AFFGEOID", d[0].replace("000US","00000US")]);
           //        //var geoName = countyFormatted[d[0]]["Geo_NAME"]
@@ -651,7 +655,7 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
           //        map.setFilter("tract", ["==",  "AFFGEOID", d[0].replace("000US","00000US")]);
           //        //var geoName = tractFormatted[d[0]]["Geo_NAME"]
           //    }else{
-          //        map.setFilter("blockgroups", ["==",  "AFFGEOID", d[0].replace("000US","00000US")]);
+                  map.setFilter("blockgroups_linechart", ["==",  "AFFGEOID", d[0].replace("000US","00000US")]);
           //        //var geoName = blockgroupFormatted[d[0]]["Geo_NAME"]
           //    }
           //   // tool_tip.html(geoName+"<br/>"+d[1])
