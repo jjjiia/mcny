@@ -35,10 +35,7 @@ function dataDidLoad(error,dataDictionaryFile){
     //countyFormatted = convertDataToDict(county)
     //blockgroupFormatted = convertDataToDict(blockgroup)
     dataDictionary = dataDictionaryFile
-    var bounds = [
-        [ -74.7, 40], // Southwest coordinates
-        [-73.0, 40.9]  // Northeast coordinates
-    ];
+
    mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
     var map = new mapboxgl.Map({
         container: 'map',
@@ -47,7 +44,7 @@ function dataDidLoad(error,dataDictionaryFile){
         zoom:12,
         minZoom:10,
         maxZoom:18,
-        pitch: 60//, // pitch in degrees
+      //  pitch: 60//, // pitch in degrees
         //bearing: -20, // bearing in degrees
 //        maxBounds: bounds // Sets bounds as max
         
@@ -55,8 +52,8 @@ function dataDidLoad(error,dataDictionaryFile){
    // map["dragPan"].disable()
     
     var bounds = [
-        [ -74.7, 40], // Southwest coordinates
-        [-73.0, 40.9]  // Northeast coordinates
+        [-74.251227, 40.499464], // Southwest coordinates
+        [-73.746046, 40.872618]  // Northeast coordinates
     ];
     
     map.setMaxBounds(bounds)
@@ -96,6 +93,7 @@ function dataDidLoad(error,dataDictionaryFile){
        // map.setFilter("blockgroups", ["==", "AFFGEOID", ""]);                    
        // map.setFilter("counties", ["==", "AFFGEOID", ""]);   
         
+        d3.selectAll("#loader").transition().duration(2000).delay(2000).style("opacity",0).remove()
         setInitialRoute(map)
         
         var zoomLevel = Math.round(map.getZoom()*100)/100
@@ -174,7 +172,6 @@ function getDirectionsData(directions,map){
     //console.log(directions)
     //console.log(map.getStyle().layers)    
     directions.on('route', function (ev) {
-        d3.select("#initial").remove()
         lineCount+=1
         var directionsPath = []
         var directionsXY = []
@@ -235,7 +232,14 @@ function getDirectionsData(directions,map){
     
     map.on("click",function(e){
    //     console.log(e)
-       d3.select("#initial").transition().duration(2000).delay(3000).style("opacity",0).remove()
+       d3.select("#initial").html("Click on map to draw paths")
+            .style("width","100%")//.style("height","30px")
+            .style("position","absolute")
+            .style("top","0px")
+            .style("left","0px")
+            .style("font-size","12px")
+            .style("background-color","#000")
+            .style("color","#fff")
         directions.setOrigin(lastClickedCoord)
         lastClickedCoord = [e.lngLat.lng, e.lngLat.lat]
         directions.setDestination([e.lngLat.lng, e.lngLat.lat])
@@ -284,8 +288,6 @@ function removePreviousLines(map){
         map.removeLayer("mouse_"+lineClass)  
 }
 function drawDirections(mouseList,map){   
-    
-    
     map.addLayer({
     "id": "mouse_"+lineCount,
             "type": "line",
