@@ -67,9 +67,9 @@
     position:fixed;
     top:0px;
     height:100%;
-    width:100%; 
-    left:0px;
-    border-left:1px solid black;
+    width:70%; 
+    left:30%;
+    border-left:1px solid #e4edf8;
   }
   #features{
     position:absolute;
@@ -92,8 +92,9 @@
  
   .panel{
     position:absolute;
-    right:0px;
-    top:0px;
+    left:0px;
+    top:10px;
+    width:29%;
   }
   .mapboxgl-ctrl-geocoder input[type='text']{
     height:25px;
@@ -189,12 +190,14 @@
 }
 #initial{
   position:absolute;
-  left:40%;
-  top:130px;
-  font-size:30px;
-  padding:10px;
-  color:black;
-  background-color:rgba(255,255,255,.8);
+  left:30%;
+  top:0px;
+  width:70%;
+  font-size:16px;
+  padding:20px;
+  color:rgba(255,255,255,1);
+  background-color:rgba(0,0,0,1);
+  letter-spacing:2px;
 }
 .mapboxgl-ctrl-top-left{
   background-color:#fff;
@@ -214,8 +217,9 @@
 <div id='features'></div>
 <div id='charts'></div>
 <div id='initial'>Here is census data along my daily commute from Jackson Heights to the West Village in New York City. 
-  <br/><br/>
-  How does yours look? Click to draw new paths</div>
+  <br/>
+  How does yours look?   <br/>
+Click on map to draw new paths</div>
   
 <div id="loader"></div>
 <script>

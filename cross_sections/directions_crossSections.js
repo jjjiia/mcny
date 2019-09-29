@@ -18,8 +18,9 @@ var  panelZ = 100
 var currentCategory = "SE_T057_001"
 var lineCount = 0
 //var colors = ["#2178a3","#dd8d64","#e7b02c","#50a633","#1bcb78","#e28327","#4f7f32","#d64728","#37a6a8","#d26140","#339762","#46a78d","#8de3be"]
- var lineColor = "red"
-  var circleColor = "red"
+ var lineColor = "#e83637"
+  var circleColor = "#e83637"
+  var lineChartColor = "rgba(0,0,0,.4)"
     var  pan =false
 var dataDictionary = null
   var tractsMax=10
@@ -68,7 +69,7 @@ function dataDidLoad(error,dataDictionaryFile){
     });
     
     map.on("move",function(){
-       //, console.log(map.getZoom())
+        console.log(map.getZoom())
         var zoomLevel = Math.round(map.getZoom()*100)/100
         if(zoomLevel<countiesMax){
             d3.select("#zoom").html("counties are queried at zoom level "+zoomLevel)
@@ -135,7 +136,7 @@ function dataDidLoad(error,dataDictionaryFile){
 function setInitialRoute(map){
     var origin = [-73.89117799999997,40.74687199]
     var destination = [-73.9984,40.72873400000003]
-    var path = [[-73.89115, 40.746875],[-73.891429, 40.746847],[-73.89170, 40.746818],[-73.892, 40.746753],[-73.893588, 40.74662],[-73.89, 40.746428],[-73.89632, 40.746335],[-73.896456, 40.747],[-73.896577, 40.747623],[-73.896739, 40.748414],[-73.896469, 40.748454],[-73.896227, 40.748482],[-73.89509, 40.74663],[-73.895616, 40.74355],[-73.89598, 40.743234],[-73.89743, 40.742086],[-73.900528, 40.739583],[-73.9047, 40.737818],[-73.9088, 40.736516],[-73.9185, 40.735357],[-73.92599, 40.730846],[-73.93342, 40.724993],[-73.946088, 40.719066],[-73.948, 40.717554],[-73.95382, 40.713569],[-73.961159, 40.710364],[-73.96461, 40.711414],[-73.97879, 40.71572],[-73.9853, 40.717701],[-73.98573, 40.717821],[-73.986538, 40.718121],[-73.987377, 40.718388],[-73.988168, 40.718619],[-73.98898, 40.718871],[-73.989728, 40.719109],[-73.99020, 40.719259],[-73.99047, 40.719345],[-73.99124, 40.719572],[-73.99210, 40.719825],[-73.992837, 40.720056],[-73.992237, 40.721248],[-73.9916, 40.722412],[-73.991057, 40.723599],[-73.991006, 40.723738],[-73.99126, 40.723805],[-73.992, 40.724192],[-73.99264, 40.724231],[-73.993437, 40.724505],[-73.9941, 40.724763],[-73.99487, 40.725018],[-73.99528, 40.725151],[-73.99581, 40.725274],[-73.996716, 40.725502],[-73.99757, 40.725875],[-73.99830, 40.726241],[-73.99906, 40.72662],[-73.99986, 40.727008],[-73.9989, 40.72807],[-73.998, 40.728734]]
+    var path = [[-73.896456, 40.747],[-73.896577, 40.747623],[-73.896739, 40.748414],[-73.896469, 40.748454],[-73.896227, 40.748482],[-73.89509, 40.74663],[-73.895616, 40.74355],[-73.89598, 40.743234],[-73.89743, 40.742086],[-73.900528, 40.739583],[-73.9047, 40.737818],[-73.9088, 40.736516],[-73.9185, 40.735357],[-73.92599, 40.730846],[-73.93342, 40.724993],[-73.946088, 40.719066],[-73.948, 40.717554],[-73.95382, 40.713569],[-73.961159, 40.710364],[-73.96461, 40.711414],[-73.97879, 40.71572],[-73.9853, 40.717701],[-73.98573, 40.717821],[-73.986538, 40.718121],[-73.987377, 40.718388],[-73.988168, 40.718619],[-73.98898, 40.718871],[-73.989728, 40.719109],[-73.99020, 40.719259],[-73.99047, 40.719345],[-73.99124, 40.719572],[-73.99210, 40.719825],[-73.992837, 40.720056],[-73.992237, 40.721248],[-73.9916, 40.722412],[-73.991057, 40.723599],[-73.991006, 40.723738],[-73.99126, 40.723805],[-73.992, 40.724192],[-73.99264, 40.724231],[-73.993437, 40.724505],[-73.9941, 40.724763],[-73.99487, 40.725018],[-73.99528, 40.725151],[-73.99581, 40.725274],[-73.996716, 40.725502],[-73.99757, 40.725875],[-73.99830, 40.726241],[-73.99906, 40.72662],[-73.99986, 40.727008],[-73.9989, 40.72807],[-73.998, 40.728734]]
     pathDistance = getDistancesPath(path)
     drawDirections(path,map)
     var geoids = []
@@ -195,9 +196,9 @@ function getDirectionsData(directions,map){
                   return bounds.extend(coord);
               }, new mapboxgl.LngLatBounds(directionsPath[0], directionsPath[0]));
 
-      map.fitBounds(bounds, {
-          padding: 400         
-      });
+     // map.fitBounds(bounds, {
+     //     padding: 200         
+     // });
       map.on("moveend",function(){
          
         var zoomLevel = map.getZoom()        
@@ -240,9 +241,7 @@ function getDirectionsData(directions,map){
        d3.select("#initial").html("Click on map to draw paths")
             .style("width","100%")//.style("height","30px")
             .style("position","absolute")
-            .style("top","0px")
-            .style("left","0px")
-            .style("font-size","12px")
+            .style("font-size","16px")
             .style("background-color","#000")
             .style("color","#fff")
         directions.setOrigin(lastClickedCoord)
@@ -487,7 +486,7 @@ function getPathDataFromFile(geoids,map,drawnZoom){
 }
 function drawPath(geoids,map,data,drawnZoom){
   //  clearMap(map)
-    console.log("drawPath")
+    //console.log("drawPath")
   //  console.log(data)
     if(drawnZoom<countiesMax){
         var filter = ["in","AFFGEOID"].concat(geoids)
@@ -561,7 +560,7 @@ function drawPath(geoids,map,data,drawnZoom){
       for(var k in dataDictionary){
           var title = dataDictionary[k]
           drawChart(distances,data,geoids,k,map, dataDictionary,panel,drawnZoom)
-          break
+          //break
       }
      
     //    document.getElementsByClassName("mapbox-directions-origin").value="none"
@@ -585,18 +584,19 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
        $("#charts").scrollTo(height);
     }
     
-    var margin = 30
-    var height = 120
-    var width = $("#charts").width()
+    var margin = 50
+    var height = 160
+    var width = $(".panel").width()
     
     var svg = d3.select("."+panel).append("svg").attr("width",width).attr("height",height).attr("class","chart_"+lineCount)
     
     var title = dataDictionary[column]
-    svg.append("text").text(title).attr("x",10).attr("y",20)
+    svg.append("text").text(title).attr("x",10).attr("y",20).style("font-size","18px")
     
-    svg.append("text").text(Math.round(pathDistance*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineColor)
-    svg.append("text").text("A").attr("x",margin*2).attr("y",height-10).style("fill",lineColor)
-    svg.append("text").text("B").attr("x",width-margin).attr("y",height-10).style("fill",lineColor)
+    
+    svg.append("text").text(Math.round(pathDistance*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineChartColor)
+    svg.append("text").text("A").attr("x",margin*2).attr("y",height-10).style("fill",lineChartColor)
+    svg.append("text").text("B").attr("x",width-margin).attr("y",height-10).style("fill",lineChartColor)
 
     var filteredData = []
     
@@ -639,12 +639,12 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
         .y(function(d,i){
                 return y(d[1])
         })
-        .curve(d3.curveNatural);
+        //.curve(d3.curveNatural);
         
         g.append("path")
             .datum(filteredData)
             .attr("fill", "none")
-            .attr("stroke",lineColor)
+            .attr("stroke",lineChartColor)
             .attr("stroke-linejoin", "round")
             .attr("d",line)
             .attr("class",column)
@@ -658,7 +658,7 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
           .data(filteredData)
           .enter()
           .append("circle")
-          .attr("fill",lineColor)
+          .attr("fill",lineChartColor)
           .attr("cy",function(d){
               return y(d[1])
           })
@@ -683,7 +683,6 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
           })
           .attr('r',7)
           .on('mouseover', function(d){
-              console.log(d)
               //  if(drawnZoom<countiesMax){
           //        map.setFilter("county", ["==",  "AFFGEOID", d[0].replace("000US","00000US")]);
           //        //var geoName = countyFormatted[d[0]]["Geo_NAME"]
