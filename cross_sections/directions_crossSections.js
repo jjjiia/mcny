@@ -25,6 +25,7 @@ var dataDictionary = null
   var tractsMax=10
   var tractsMin=8
   var countiesMax=8
+  var pathDistance = 0
 //var tractFormatted =null
 //var countyFormatted =null
 //var blockgroupFormatted =null
@@ -84,6 +85,7 @@ function dataDidLoad(error,dataDictionaryFile){
         d3.select(".mapboxgl-ctrl-top-left").remove()
     
     map.on('load', function() {        
+        map.setFilter("blockgroups_linechart", ["==", "AFFGEOID", ""]);                    
         map.setFilter("bg-hover-highlight", ["==", "AFFGEOID", ""]);                    
        map.setFilter("county-hover-highlight", ["==", "AFFGEOID", ""]);                                     
        map.setFilter("tract-hover-highlight", ["==", "AFFGEOID", ""]); 
@@ -134,17 +136,19 @@ function setInitialRoute(map){
     var origin = [-73.89117799999997,40.74687199]
     var destination = [-73.9984,40.72873400000003]
     var path = [[-73.89115, 40.746875],[-73.891429, 40.746847],[-73.89170, 40.746818],[-73.892, 40.746753],[-73.893588, 40.74662],[-73.89, 40.746428],[-73.89632, 40.746335],[-73.896456, 40.747],[-73.896577, 40.747623],[-73.896739, 40.748414],[-73.896469, 40.748454],[-73.896227, 40.748482],[-73.89509, 40.74663],[-73.895616, 40.74355],[-73.89598, 40.743234],[-73.89743, 40.742086],[-73.900528, 40.739583],[-73.9047, 40.737818],[-73.9088, 40.736516],[-73.9185, 40.735357],[-73.92599, 40.730846],[-73.93342, 40.724993],[-73.946088, 40.719066],[-73.948, 40.717554],[-73.95382, 40.713569],[-73.961159, 40.710364],[-73.96461, 40.711414],[-73.97879, 40.71572],[-73.9853, 40.717701],[-73.98573, 40.717821],[-73.986538, 40.718121],[-73.987377, 40.718388],[-73.988168, 40.718619],[-73.98898, 40.718871],[-73.989728, 40.719109],[-73.99020, 40.719259],[-73.99047, 40.719345],[-73.99124, 40.719572],[-73.99210, 40.719825],[-73.992837, 40.720056],[-73.992237, 40.721248],[-73.9916, 40.722412],[-73.991057, 40.723599],[-73.991006, 40.723738],[-73.99126, 40.723805],[-73.992, 40.724192],[-73.99264, 40.724231],[-73.993437, 40.724505],[-73.9941, 40.724763],[-73.99487, 40.725018],[-73.99528, 40.725151],[-73.99581, 40.725274],[-73.996716, 40.725502],[-73.99757, 40.725875],[-73.99830, 40.726241],[-73.99906, 40.72662],[-73.99986, 40.727008],[-73.9989, 40.72807],[-73.998, 40.728734]]
+    pathDistance = getDistancesPath(path)
     drawDirections(path,map)
     var geoids = []
     var featureList = []
     var zoomLevel = map.getZoom()
-      //  path = addPointsForSmoothing(path)
+        path = addPointsForSmoothing(path)
     
    // console.log(path)
     for(var k in path){        
         var e = map.project(path[k])
         //console.log(e)
-        var bbox = [[e.x - 10, e.y - 10], [e.x + 10, e.y + 10]];
+        var bboxRange = 8
+        var bbox = [[e.x - bboxRange, e.y - bboxRange], [e.x + bboxRange, e.y + bboxRange]];
         var features = map.queryRenderedFeatures(bbox,{layers:["blockgroups"]});        
             // var formattedCensus = blockgroupFormatted
        // var feature = features[0]
@@ -185,6 +189,7 @@ function getDirectionsData(directions,map){
                 directionsPath.push(intersections[j]["location"])
             }
         }
+        getDistancesPath(directionsPath)
      //   directionsPath = addPointsForSmoothing(directionsPath)
         var bounds = directionsPath.reduce(function(bounds, coord) {
                   return bounds.extend(coord);
@@ -262,13 +267,13 @@ function addPointsForSmoothing(directionsPath){
             var lat2 = coords2[1]
             var lng2 = coords1[0]
             var newCoords1 = midpoint(lat1, lng1, lat2, lng2, .5)
-          //  var newCoords2 = midpoint(lat1, lng1, lat2, lng2, .4)
+            var newCoords2 = midpoint(lat1, lng1, lat2, lng2, .4)
           //  var newCoords3 = midpoint(lat1, lng1, lat2, lng2, .6)
           //  var newCoords4 = midpoint(lat1, lng1, lat2, lng2, .8)
             
          //   console.log(newCoords)
             morePoints.push(newCoords1)
-           // morePoints.push(newCoords2)
+            morePoints.push(newCoords2)
            // morePoints.push(newCoords3)
            // morePoints.push(newCoords4)
         }
@@ -384,6 +389,35 @@ function getDistance(lat1, lon1, lat2, lon2, unit) {
 	return dist
 }
 
+function getDistancesPath(path){
+    var totalDistance = 0
+    var distanceDictionary = {}
+    
+   // console.log(pathDataId)
+    
+    for(var i =0; i <path.length-1; i++){
+        
+        if(i<path.length){
+           // console.log(pathDataId[i])
+        //    console.log(i)
+      //  console.log(pathDataId[parseInt(i+1)])
+          //  var gid1 = pathDataId[i][0]
+          //  var gid2 =pathDataId[i+1][0]
+            var coord1 = path[i]
+            var coord2 = path[i+1]
+            var d = getDistance(coord1[1],coord1[0],coord2[1],coord2[0])
+            //console.log(d)
+            totalDistance+=d
+           // distanceDictionary[gid2]=totalDistance
+        }
+       // console.log(totalDistance)
+    }
+    pathDistance = totalDistance
+    console.log("test "+pathDistance)
+    return pathDistance
+}
+
+
 function getDistances(pathDataId){
     var totalDistance = 0
     var distanceDictionary = {}
@@ -393,7 +427,7 @@ function getDistances(pathDataId){
     for(var i =0; i <pathDataId.length-1; i++){
         
         if(i<pathDataId.length){
-            console.log(pathDataId[i])
+           // console.log(pathDataId[i])
         //    console.log(i)
       //  console.log(pathDataId[parseInt(i+1)])
             var gid1 = pathDataId[i][0]
@@ -401,11 +435,11 @@ function getDistances(pathDataId){
             var coord1 = pathDataId[i][1]
             var coord2 = pathDataId[i+1][1]
             var d = getDistance(coord1[1],coord1[0],coord2[1],coord2[0])
-            console.log(d)
+            //console.log(d)
             totalDistance+=d
             distanceDictionary[gid2]=totalDistance
         }
-        console.log(totalDistance)
+       // console.log(totalDistance)
     }
     
   //  console.log(pathDataId)
@@ -542,6 +576,8 @@ function drawPath(geoids,map,data,drawnZoom){
 }
 function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){    
         
+        
+
     d3.select("#mapbox-directions-destination-input .geocoder-icon geocoder-icon-search input").html("").style("width","100%")
     
     var height = $('#charts').height();
@@ -558,7 +594,7 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
     var title = dataDictionary[column]
     svg.append("text").text(title).attr("x",10).attr("y",20)
     
-   // svg.append("text").text(Math.round(distances.total*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineColor)
+    svg.append("text").text(Math.round(pathDistance*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineColor)
     svg.append("text").text("A").attr("x",margin*2).attr("y",height-10).style("fill",lineColor)
     svg.append("text").text("B").attr("x",width-margin).attr("y",height-10).style("fill",lineColor)
 
