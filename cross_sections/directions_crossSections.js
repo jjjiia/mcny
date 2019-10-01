@@ -69,7 +69,7 @@ function dataDidLoad(error,dataDictionaryFile){
     });
     
     map.on("move",function(){
-        console.log(map.getZoom())
+       // console.log(map.getZoom())
         var zoomLevel = Math.round(map.getZoom()*100)/100
         if(zoomLevel<countiesMax){
             d3.select("#zoom").html("counties are queried at zoom level "+zoomLevel)
@@ -113,12 +113,14 @@ function dataDidLoad(error,dataDictionaryFile){
         d3.select(".directions-reverse").remove()
         d3.select(".mapboxgl-ctrl-logo").remove()
         d3.select(".mapboxgl-ctrl-bottom-right").remove()
-        map.setPaintProperty("directions-origin-point","circle-color","#aaaaaa")
+        map.setPaintProperty("directions-origin-point","circle-color","#e83637")
         map.setPaintProperty("directions-origin-point","circle-radius",10)
-        map.setPaintProperty("directions-destination-point","circle-color","#aaaaaa")
+        map.setPaintProperty("directions-origin-point","circle-opacity",.5)
+        map.setPaintProperty("directions-destination-point","circle-color","#e83637")
         map.setPaintProperty("directions-destination-point","circle-radius",10)
+        map.setPaintProperty("directions-destination-point","circle-opacity",.5)
         map.setPaintProperty("directions-route-line","line-color","#aaaaaa")
-        map.setPaintProperty("directions-route-line","line-opacity",.5)
+        map.setPaintProperty("directions-route-line","line-opacity",0)
         map.setPaintProperty("directions-route-line","line-width",8)
         map.setFilter( "directions-route-line-alt", ["==", "AFFGEOID", ""]);  
         map.setFilter( "directions-hover-point-casing", ["==", "AFFGEOID", ""]);  
@@ -199,8 +201,7 @@ function getDirectionsData(directions,map){
      // map.fitBounds(bounds, {
      //     padding: 200         
      // });
-      map.on("moveend",function(){
-         
+      map.on("moveend",function(){         
         var zoomLevel = map.getZoom()        
          })
         var zoomLevel = map.getZoom()
@@ -412,7 +413,7 @@ function getDistancesPath(path){
        // console.log(totalDistance)
     }
     pathDistance = totalDistance
-    console.log("test "+pathDistance)
+    //console.log("test "+pathDistance)
     return pathDistance
 }
 
@@ -700,6 +701,8 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
           })
           .on('mouseout', function(d){
               d3.select(this).attr("opacity",0)
+              map.setFilter("blockgroups_linechart", ["==",  "AFFGEOID", ""]);
+              
               //if(drawnZoom<countiesMax){
               //    map.setFilter("countie", ["==",  "AFFGEOID", ""]);
               //}else if(drawnZoom >tractsMin && drawnZoom<tractsMax){            
