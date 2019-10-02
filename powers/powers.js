@@ -10,18 +10,21 @@ var keys =null
 var topicIndex = 1
 var timer = 0
 var timeInterval = 200
+var cityCounter = 0
+var restTimer =0
+var map
+var mcny = [-73.951372,40.792811]
 var pub = {
     speed:.1,
     curve:1,
-    startZoom:19,
-    minZoom:10,
-    maxZoom:19.1,
+    startZoom:14,
+    minZoom:4.01,
+    maxZoom:14,
     power:0
 }
-var currentCenter = [-73.952541, 40.782690]
 $(function() {
   	queue()
-     // .defer(d3.json,"neighborhoods.json")
+      .defer(d3.json,"cities.json")
       .defer(d3.json,"data_census/census_keys.json")
      // .defer(d3.json,"dictionary_birth.json")
       .defer(d3.csv,"data_census/census_blockgroup.csv")
@@ -30,16 +33,15 @@ $(function() {
       .await(dataDidLoad);
   })
 
-function addMapFeatures(map){
-    //  map.addControl(new mapboxgl.GeolocateControl({
-    //    positionOptions: {enableHighAccuracy: true},
-    //    trackUserLocation: true}), "top-right"); 
+function addMapFeatures(map){    
+      map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: {enableHighAccuracy: true},
+        trackUserLocation: true}), "top-right"); 
         addButtonFly(map)
     
         map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'})); 
         map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'metric'})); 
-      //  d3.select(".mapboxgl-ctrl-bottom-right").remove()
-       
+        d3.select(".mapboxgl-ctrl-bottom-right").remove()       
 }
 
 function reverse(map,cities){
@@ -65,7 +67,7 @@ function reverse(map,cities){
         d3.select("#nextLocation").html(cityDisplayString).style("text-align","right")//.transition().delay(3000).style("opacity",0).remove()
          map.flyTo({
            center:[currentCity.longitude,currentCity.latitude],
-               zoom: 20,
+               zoom: 16,
                speed: pub.speed // make the flying slow
            });
 }
@@ -120,12 +122,12 @@ function deg2rad(deg) {
   return deg * (Math.PI/180)
 }
 
-function dataDidLoad(error,dataDictionary,blockGroup,tract,county) {  
-    var randomIndex = getRandomInt(0, neighborhoods.length)
-    var currentCity = neighborhoods[randomIndex]
+function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {  
+    var randomIndex = getRandomInt(0, cities.length)
+    var currentCity = cities[randomIndex]
     //[-73.978169,40.75136]//
-    //var currentCenter = [currentCity.longitude,currentCity.latitude]
-    d3.select("#fly").html("Click to start from "+currentCity.name)
+    var currentCenter = mcny//[currentCity.longitude,currentCity.latitude]
+    d3.select("#fly").html("Click to start from New York City")
     
     keys = dataDictionary
     
@@ -134,55 +136,54 @@ function dataDidLoad(error,dataDictionary,blockGroup,tract,county) {
     var countyDataById = makeCensusDictionary(county)
     
     var bounds = [
-        [ -74.7, 40], // Southwest coordinates
-        [-73.0, 40.9]  // Northeast coordinates
+        [-126.098852, 33.815507], // Southwest coordinates
+        [-58.071510, 46.573835]  // Northeast coordinates
     ];
     mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
-    var map = new mapboxgl.Map({
+    map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/jjjiia123/cjd9bcmhe14kj2so4ze5y812e',
         center: currentCenter,
         maxZoom: pub.maxZoom,
         minZoom: pub.minZoom,
-        zoom: pub.startZoom//,
-       // maxBounds: bounds // Sets bounds as max
-        
+        zoom: pub.startZoom
     });
-    addButtonFly(map)
-    
     map.on("moveend",function(){
-        console.log("end")
-        console.log(map.getZoom())
+        console.log("start time out")
+        reActivate()
+        
       d3.select("#fly2").html("go").style("opacity",1)
         
-        if(map.getZoom()>19){
+        if(map.getZoom()>13.5){
                 reversing = false
-            
+                
                 map.flyTo({
-                      center:currentCenter,
+                      center:[-98.35,39],
                       zoom: pub.minZoom,
                       speed: pub.speed, // make the flying slow
                       curve: pub.curve // change the speed at which it zooms out
                   });
-              }else if(map.getZoom()<10.1){
+              }else if(map.getZoom()<4.1){
                 reversing = true
                  
                       var layers = map.getStyle().layers
                       for(var l in layers){
-                          console.log(layers[l]["id"])
+                         // console.log(layers[l]["id"])
                           if(layers[l]["id"].split("_")[0]=="frame"){
                               map.removeLayer(layers[l]["id"])
                               map.removeSource(layers[l]["id"].replace("frame_Label","frame_labelsource"))
                           }
                       }
                  
-                   
-
-                var randomIndex = getRandomInt(0, neighborhoods.length)
-                var currentCity = neighborhoods[randomIndex]
-                var currentCenter = [currentCity.latitude,currentCity.longitude]       
-                console.log(currentCenter)         
-                      
+                var randomIndex = getRandomInt(0, cities.length)
+                var currentCity = cities[randomIndex]
+                var currentCenter = [currentCity.longitude,currentCity.latitude]       
+                cityCounter+=1
+                console.log(cityCounter)
+                      if(cityCounter%4==0){
+                          currentCenter = mcny
+                      }
+                               
                 map.flyTo({
                       center:currentCenter,
                       zoom: pub.maxZoom,
@@ -194,8 +195,7 @@ function dataDidLoad(error,dataDictionary,blockGroup,tract,county) {
     map.on('load', function() {
        // addMapLayers(map)
         addMapFeatures(map)
-       // firstFrame(map,blockGroupDataById)
-        d3.select(".mapboxgl-ctrl-attrib").remove()
+      //  firstFrame(map,blockGroupDataById)
     })
     map.on("drag",function(){
                     timer+=timeInterval
@@ -207,10 +207,11 @@ function dataDidLoad(error,dataDictionary,blockGroup,tract,county) {
     })
     map.on("move",function(){
            timer+=1
+        restTimer = 0
       d3.select("#fly2").html("").style("opacity",0)
       
         if(flying==true){
-            if(map.getZoom()<19){
+            if(map.getZoom()<13.5){
                 if(timer%timeInterval==0){
                     d3.selectAll(".marker").remove()
                    // d3.selectAll(".topics").transition().duration(1000).style("opacity",0)
@@ -220,8 +221,7 @@ function dataDidLoad(error,dataDictionary,blockGroup,tract,county) {
                     var geoids = getFeatures(map,dataDictionary,blockGroupDataById,tractDataById,countyDataById)
                 }
             }     
-        }else if (map.getZoom()>19){
-            console.log("geo")
+        }else if (map.getZoom()>13.5){
                     d3.selectAll(".marker").remove()
                     timer+=timeInterval
             
@@ -235,13 +235,32 @@ function dataDidLoad(error,dataDictionary,blockGroup,tract,county) {
             reversing = false
         
             map.flyTo({
-                  center:currentCenter,
+                  center:[-98.35,39],
                   zoom: pub.minZoom,
                   speed: pub.speed, // make the flying slow
                   curve: pub.curve // change the speed at which it zooms out
               });
         }
     })    
+}
+function reActivate(){
+    clearInterval()
+    
+    setInterval(function() {
+        restTimer+=1
+        if(restTimer%1000==0){
+            console.log(restTimer)
+        }
+        if(restTimer>15000){
+            restTimer = 0
+        
+            map.flyTo({
+              center:mcny,
+                  zoom: 16,
+                  speed: pub.speed // make the flying slow
+              });
+        }
+    }, 1);
 }
 function firstFrame(map,blockGroupData){
     var features = map.queryRenderedFeatures({layers:['blockGroup']});
@@ -264,6 +283,7 @@ function firstFrame(map,blockGroupData){
         var area = calculateArea(lat1,lng1,lat2,lng2,lat3,lng3,lat4,lng4)
     
     var population = parseInt(Math.round(area*density))
+    console.log(population)
     for(var i=0; i<population;i++){
         var x = Math.random()*point[0]
         var y = Math.random()*point[1]
@@ -435,23 +455,22 @@ function normalize(string) {
     return string.trim().toLowerCase();
 }
 function addButtonFly(map){
-    console.log("button fly function")
-//    document.getElementById('map').addEventListener('click', function() {
-//          flying = false
-//    })
+    document.getElementById('map').addEventListener('click', function() {
+          flying = false
+    })
     
-//      document.getElementById('fly').addEventListener('click', function() {
+      document.getElementById('fly').addEventListener('click', function() {
           flying = true
     reversing=false          
       d3.select("#introText").remove()
         map.flyTo({
-              center:currentCenter,
+              center:[-98.35,39],
               zoom: pub.minZoom,
               speed: pub.speed, // make the flying slow
               curve: pub.curve // change the speed at which it zooms out
            
           });
-   //   })
+      })
       var isAtStart = true;
     document.getElementById('fly2').addEventListener('click', function() {
           flying = true
@@ -475,7 +494,7 @@ function addButtonFly(map){
      //   isAtStart = !isAtStart;
         d3.select("#nextLocation").html("")
         map.flyTo({
-              center:currentCenter,
+              center:[-98.35,39],
               zoom: pub.maxZoom,
               speed: pub.speed, // make the flying slow
               curve: pub.curve // change the speed at which it zooms out
@@ -633,48 +652,48 @@ function displayCenterStatistic(totalPopulation,map){
         
         var offSetLabel = map.unproject([point[0]+45, -20])
          
-      //  map.addSource('frame_labelsource'+layerId, {
-      //    type: 'geojson',
-      //    data: {
-      //        "type": "FeatureCollection",
-      //        "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4269" } },
-      //        "features": [
-      //            { "type": "Feature", "geometry": 
-      //            { "type": "Point", "coordinates": [ offSetLabel.lng,offSetLabel.lat]} }
-      //        ]
-      //    }}
-      //);      
-       // map.addLayer({
-       //     "id":"frame_Label"+layerId,
-       //     "type": 'symbol',
-       //     "source":'frame_labelsource'+layerId,
-       //     "layout":{
-       //         'text-field':"power of "+String(String(totalPopulation).length-1),
-       //          'text-size': 12,
-       //     }, 
-       //     paint: {
-       //   'text-translate-anchor': 'viewport', // up to you to change this -- see the docs
-       //   'text-color': 'rgba(255,255,220, .5)' // whatever you want -- can even be data driven using a `{featureProperty}`,
-       // }
-       // })
-       // map.addLayer({
-       //   'id': "frame_"+layerId,
-       //   'type': 'fill',
-       //     'source': {
-       //         "type":"geojson",
-       //         "data":{
-       //         'type': 'Feature',
-       //         'geometry': {
-       //             'type': 'Polygon',
-       //             'coordinates': [[p1,p2,p3,p4,p1]]
-       //         }
-       //     }
-       // },
-       //     'paint': {
-       //         'fill-outline-color':'rgba(255,255,220, .8)',
-       //         'fill-color': 'rgba(200, 100, 240, 0)'
-       //     }
-       // });
+        map.addSource('frame_labelsource'+layerId, {
+          type: 'geojson',
+          data: {
+              "type": "FeatureCollection",
+              "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4269" } },
+              "features": [
+                  { "type": "Feature", "geometry": 
+                  { "type": "Point", "coordinates": [ offSetLabel.lng,offSetLabel.lat]} }
+              ]
+          }}
+      );      
+        map.addLayer({
+            "id":"frame_Label"+layerId,
+            "type": 'symbol',
+            "source":'frame_labelsource'+layerId,
+            "layout":{
+                'text-field':"power of "+String(String(totalPopulation).length-1),
+                 'text-size': 12,
+            }, 
+            paint: {
+          'text-translate-anchor': 'viewport', // up to you to change this -- see the docs
+          'text-color': 'rgba(255,255,220, .5)' // whatever you want -- can even be data driven using a `{featureProperty}`,
+        }
+        })
+        map.addLayer({
+          'id': "frame_"+layerId,
+          'type': 'fill',
+            'source': {
+                "type":"geojson",
+                "data":{
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [[p1,p2,p3,p4,p1]]
+                }
+            }
+        },
+            'paint': {
+                'fill-outline-color':'rgba(255,255,220, .8)',
+                'fill-color': 'rgba(200, 100, 240, 0)'
+            }
+        });
     }    
     pub.power = String(totalPopulation).length-1
 }
