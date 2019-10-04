@@ -34,9 +34,9 @@ $(function() {
   })
 
 function addMapFeatures(map){    
-      map.addControl(new mapboxgl.GeolocateControl({
-        positionOptions: {enableHighAccuracy: true},
-        trackUserLocation: true}), "top-right"); 
+     // map.addControl(new mapboxgl.GeolocateControl({
+     //   positionOptions: {enableHighAccuracy: true},
+     //   trackUserLocation: true}), "top-right"); 
         addButtonFly(map)
     
         map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'})); 
@@ -146,11 +146,14 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         center: currentCenter,
         maxZoom: pub.maxZoom,
         minZoom: pub.minZoom,
-        zoom: pub.startZoom
+        zoom: pub.startZoom,
+       // interactive: false,
+        
     });
+    
     map.on("moveend",function(){
-        console.log("start time out")
-        reActivate()
+      //  console.log("start time out")
+        //reActivate()
         
       d3.select("#fly2").html("go").style("opacity",1)
         
@@ -193,9 +196,17 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
             }         
     })
     map.on('load', function() {
+        map["dragPan"].disable()
+        map["touchZoomRotate"].disable()
+        map["doubleClickZoom"].disable()
+        map["keyboard"].disable()
+        map["dragRotate"].disable()
        // addMapLayers(map)
         addMapFeatures(map)
       //  firstFrame(map,blockGroupDataById)
+    })
+    map.on("click", function(){
+        console.log("clicked")
     })
     map.on("drag",function(){
                     timer+=timeInterval
@@ -455,9 +466,9 @@ function normalize(string) {
     return string.trim().toLowerCase();
 }
 function addButtonFly(map){
-    document.getElementById('map').addEventListener('click', function() {
-          flying = false
-    })
+  //  document.getElementById('map').addEventListener('click', function() {
+    //      flying = false
+    //})
     
       document.getElementById('fly').addEventListener('click', function() {
           flying = true
