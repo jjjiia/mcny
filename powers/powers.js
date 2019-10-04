@@ -212,12 +212,17 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         mouseLng = e.lngLat.lng
     })
     map.on("click", function(){
-        map.flyTo({
-              center:[mouseLng, mouseLat],
-              zoom: pub.maxZoom,
-              speed: pub.speed, // make the flying slow
-              curve: pub.curve // change the speed at which it zooms out
-          });
+        var zoomLevel = map.getZoom()
+        console.log(zoomLevel)
+        if(zoomLevel<10){
+            map.flyTo({
+                  center:[mouseLng, mouseLat],
+                  zoom: pub.maxZoom,
+                  speed: pub.speed, // make the flying slow
+                  curve: pub.curve // change the speed at which it zooms out
+              });
+        }
+       
           setInterval(function(){restTimer+=1 
             if(restTimer>10){
                 flying = true
