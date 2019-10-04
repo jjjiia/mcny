@@ -13,6 +13,8 @@ var timeInterval = 200
 var cityCounter = 0
 var restTimer =0
 var map
+var mouseLng = 0
+var mouseLat = 0
 var mcny = [-73.951372,40.792811]
 var pub = {
     speed:.1,
@@ -205,9 +207,33 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         addMapFeatures(map)
       //  firstFrame(map,blockGroupDataById)
     })
-    map.on("click", function(){
-        console.log("clicked")
+    map.on("mousemove",function(e){
+        mouseLat = e.lngLat.lat
+        mouseLng = e.lngLat.lng
     })
+    map.on("click", function(){
+        map.flyTo({
+              center:[mouseLng, mouseLat],
+              zoom: pub.maxZoom,
+              speed: pub.speed, // make the flying slow
+              curve: pub.curve // change the speed at which it zooms out
+          });
+          setInterval(function(){restTimer+=1 
+            if(restTimer>10){
+                flying = true
+                map.flyTo({
+                      center:[-98.35,39],
+                      zoom: pub.maxZoom,
+                      speed: pub.speed, // make the flying slow
+                      curve: pub.curve // change the speed at which it zooms out
+                  });
+                  restTimer = 0
+                  clearInterval()
+            }
+        }, 1000);
+    })
+    
+    
     map.on("drag",function(){
                     timer+=timeInterval
         
@@ -254,25 +280,9 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         }
     })    
 }
-function reActivate(){
-    clearInterval()
-    
-    setInterval(function() {
-        restTimer+=1
-        if(restTimer%1000==0){
-            console.log(restTimer)
-        }
-        if(restTimer>15000){
-            restTimer = 0
-        
-            map.flyTo({
-              center:mcny,
-                  zoom: 16,
-                  speed: pub.speed // make the flying slow
-              });
-        }
-    }, 1);
-}
+//function reActivate(){
+//    flying = false
+//}
 function firstFrame(map,blockGroupData){
     var features = map.queryRenderedFeatures({layers:['blockGroup']});
     var firstFeature = features[0]["properties"]["AFFGEOID"].replace("00000","000")
