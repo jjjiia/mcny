@@ -182,6 +182,8 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
     
     
     map.on("moveend",function(){
+        removeAllFrameLayers(map)
+        
         if(map.getZoom()>12.5){
             map.flyTo({
                       center:[-98.35,39],
@@ -192,7 +194,6 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
               }
               else if(map.getZoom()<4.1){
                     //console.log(map.getStyle().layers)
-                  removeAllFrameLayers(map)
                     d3.select("#fly2").html("click on map to go to place").style("opacity",1)
                   
                   map.on("click", function(){
