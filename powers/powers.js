@@ -19,9 +19,9 @@ var mcny = [-73.951372,40.792811]
 var pub = {
     speed:.1,
     curve:1,
-    startZoom:14,
+    startZoom:13,
     minZoom:4.01,
-    maxZoom:14,
+    maxZoom:13,
     power:0
 }
 $(function() {
@@ -34,17 +34,6 @@ $(function() {
       .defer(d3.csv,"data_census/census_county.csv")
       .await(dataDidLoad);
   })
-
-function addMapFeatures(map){    
-     // map.addControl(new mapboxgl.GeolocateControl({
-     //   positionOptions: {enableHighAccuracy: true},
-     //   trackUserLocation: true}), "top-right"); 
-        addButtonFly(map)
-    
-        map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'})); 
-        map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'metric'})); 
-        d3.select(".mapboxgl-ctrl-bottom-right").remove()       
-}
 
 function reverse(map,cities){
     reversing=true
@@ -66,7 +55,8 @@ function reverse(map,cities){
         var currentCity = cities[randomIndex]
     
         var cityDisplayString = currentCity.city+", "+currentCity.state+"<br/>"+currentCity.longitude+", "+currentCity.latitude
-        d3.select("#nextLocation").html(cityDisplayString).style("text-align","right")//.transition().delay(3000).style("opacity",0).remove()
+        d3.select("#nextLocation").html(cityDisplayString).style("text-align","right")
+        //.transition().delay(3000).style("opacity",0).remove()
          map.flyTo({
            center:[currentCity.longitude,currentCity.latitude],
                zoom: 16,
@@ -149,104 +139,110 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         maxZoom: pub.maxZoom,
         minZoom: pub.minZoom,
         zoom: pub.startZoom,
-       // interactive: false,
-        
+        interactive: false
     });
+    map.on('load', function() {
+        //map["dragPan"].disable()
+        //map["touchZoomRotate"].disable(
+        //map["doubleClickZoom"].disable()
+        //map["keyboard"].disable()
+        //map["dragRotate"].disable()
+       // addMapLayers(map)
+        addButtonFly(map)
+        document.getElementById('fly').addEventListener('click', function() {
+            flying = true
+        reversing=false          
+        d3.select("#introText").remove()
+          map.flyTo({
+                center:[-98.35,39],
+                zoom: pub.minZoom,
+                speed: pub.speed, // make the flying slow
+                curve: pub.curve // change the speed at which it zooms out
+           
+            });
+        })
+        var isAtStart = true;
+    
+        map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'})); 
+        map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'metric'})); 
+        d3.select(".mapboxgl-ctrl-bottom-right").remove()       
+      //  firstFrame(map,blockGroupDataById)
+
+    })
+    map.on("move",function(){
+        
+        map.boxZoom.disable();
+        map.scrollZoom.disable();
+        map.dragPan.disable();
+        map.dragRotate.disable();
+        map.keyboard.disable();
+        map.doubleClickZoom.disable();
+        map.touchZoomRotate.disable();
+    })
+    
     
     map.on("moveend",function(){
-      //  console.log("start time out")
-        //reActivate()
-        
-      d3.select("#fly2").html("go").style("opacity",1)
-        
-        if(map.getZoom()>13.5){
-                reversing = false
-                
-                map.flyTo({
+        if(map.getZoom()>12.5){
+            map.flyTo({
                       center:[-98.35,39],
                       zoom: pub.minZoom,
                       speed: pub.speed, // make the flying slow
                       curve: pub.curve // change the speed at which it zooms out
                   });
-              }else if(map.getZoom()<4.1){
-                reversing = true
-                 
-                      var layers = map.getStyle().layers
-                      for(var l in layers){
-                         // console.log(layers[l]["id"])
-                          if(layers[l]["id"].split("_")[0]=="frame"){
-                              map.removeLayer(layers[l]["id"])
-                              map.removeSource(layers[l]["id"].replace("frame_Label","frame_labelsource"))
-                          }
-                      }
-                 
-                var randomIndex = getRandomInt(0, cities.length)
-                var currentCity = cities[randomIndex]
-                var currentCenter = [currentCity.longitude,currentCity.latitude]       
-                cityCounter+=1
-                console.log(cityCounter)
-                      if(cityCounter%4==0){
-                          currentCenter = mcny
-                      }
-                               
-                map.flyTo({
-                      center:currentCenter,
-                      zoom: pub.maxZoom,
-                      speed: pub.speed, // make the flying slow
-                      curve: pub.curve // change the speed at which it zooms out
-                  });
-            }         
+              }
+              else if(map.getZoom()<4.1){
+                    //console.log(map.getStyle().layers)
+                  removeAllFrameLayers(map)
+                    d3.select("#fly2").html("click on map to go to place").style("opacity",1)
+                  
+                  map.on("click", function(){
+                      var zoomLevel = map.getZoom()
+                        d3.select("#powerBase").html("")
+                        d3.select(".topics").html("")
+        
+                          map.jumpTo({
+                                center:[mouseLng, mouseLat],
+                                zoom: pub.maxZoom,
+                                speed: pub.speed, // make the flying slow
+                                curve: pub.curve // change the speed at which it zooms out
+                            });
+                  })
+                  setInterval(function(){
+                      restTimer+=1 
+                      //console.log(restTimer)
+                    if(restTimer>15){
+                        var randomIndex = getRandomInt(0, cities.length)
+                        var currentCity = cities[randomIndex]
+                        flying = true
+                        map.flyTo({
+                              center:[currentCity.longitude,currentCity.latitude],
+                              zoom: pub.maxZoom,
+                              speed: pub.speed, // make the flying slow
+                              curve: pub.curve // change the speed at which it zooms out
+                          });
+                          restTimer = 0
+                          clearInterval()
+                    }
+                }, 1000);
+            } 
+                      
     })
-    map.on('load', function() {
-        map["dragPan"].disable()
-        map["touchZoomRotate"].disable()
-        map["doubleClickZoom"].disable()
-        map["keyboard"].disable()
-        map["dragRotate"].disable()
-       // addMapLayers(map)
-        addMapFeatures(map)
-      //  firstFrame(map,blockGroupDataById)
-    })
+   
     map.on("mousemove",function(e){
         mouseLat = e.lngLat.lat
         mouseLng = e.lngLat.lng
     })
-    map.on("click", function(){
-        var zoomLevel = map.getZoom()
-        console.log(zoomLevel)
-        if(zoomLevel<10){
-            map.flyTo({
-                  center:[mouseLng, mouseLat],
-                  zoom: pub.maxZoom,
-                  speed: pub.speed, // make the flying slow
-                  curve: pub.curve // change the speed at which it zooms out
-              });
-        }
-       
-          setInterval(function(){restTimer+=1 
-            if(restTimer>10){
-                flying = true
-                map.flyTo({
-                      center:[-98.35,39],
-                      zoom: pub.maxZoom,
-                      speed: pub.speed, // make the flying slow
-                      curve: pub.curve // change the speed at which it zooms out
-                  });
-                  restTimer = 0
-                  clearInterval()
-            }
-        }, 1000);
-    })
-    
-    
+
+  /*
     map.on("drag",function(){
-                    timer+=timeInterval
-        
-            d3.selectAll("#topics_"+String(topicIndex%5+1)).transition().duration(1000).style("opacity",1)
-            d3.selectAll("#topics_"+String(topicIndex%5+1)).transition().delay(2000).duration(1000).style("opacity",0)
-            topicIndex+=1
-        var geoids = getFeatures(map,dataDictionary,blockGroupDataById,tractDataById,countyDataById)
-    })
+                      timer+=timeInterval
+          
+              d3.selectAll("#topics_"+String(topicIndex%5+1)).transition().duration(1000).style("opacity",1)
+              d3.selectAll("#topics_"+String(topicIndex%5+1)).transition().delay(2000).duration(1000).style("opacity",0)
+              topicIndex+=1
+          var geoids = getFeatures(map,dataDictionary,blockGroupDataById,tractDataById,countyDataById)
+      })*/
+  
     map.on("move",function(){
            timer+=1
         restTimer = 0
@@ -285,9 +281,27 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         }
     })    
 }
-//function reActivate(){
-//    flying = false
-//}
+function removeAllFrameLayers(map){
+     var sources = map.getStyle().sources
+     var layers = map.getStyle().layers
+    
+    for(var l in layers){
+        //console.log(l)
+        if(layers[l].id.split("_")[0]=="frame"){
+                map.removeLayer(layers[l].id)
+             //   map.removeSource(layers[l].id)
+           // console.log("removed"+layers[l].id)
+        }
+    }
+    for(var s in sources){
+        if(s.split("_")[0]=="frame"){
+                map.removeSource(s)
+             //   map.removeSource(layers[l].id)
+           // console.log("removed"+layers[l].id)
+        }
+    }
+    
+}
 function firstFrame(map,blockGroupData){
     var features = map.queryRenderedFeatures({layers:['blockGroup']});
     var firstFeature = features[0]["properties"]["AFFGEOID"].replace("00000","000")
@@ -481,10 +495,6 @@ function normalize(string) {
     return string.trim().toLowerCase();
 }
 function addButtonFly(map){
-  //  document.getElementById('map').addEventListener('click', function() {
-    //      flying = false
-    //})
-    
       document.getElementById('fly').addEventListener('click', function() {
           flying = true
     reversing=false          
@@ -498,34 +508,7 @@ function addButtonFly(map){
           });
       })
       var isAtStart = true;
-    document.getElementById('fly2').addEventListener('click', function() {
-          flying = true
-        
-    reversing=false
-      var allLayers = map.getStyle().layers
-      var allSources = map.getStyle().sources
-  
-        for(var l in allLayers){
-            var layer = allLayers[l]
-            if(layer.id.split("_")[0]=="frame"){
-                map.removeLayer(layer.id);            
-            }
-        }
-        for(var s in allSources){
-            if(s.split("_")[0]=="frame"){
-                map.removeSource(s)
-            }
-        }
-   //   d3.select("#fly2").html("<i class=\"fa fa-play\" style=\"font-size:12spx\"></i>")
-     //   isAtStart = !isAtStart;
-        d3.select("#nextLocation").html("")
-        map.flyTo({
-              center:[-98.35,39],
-              zoom: pub.maxZoom,
-              speed: pub.speed, // make the flying slow
-              curve: pub.curve // change the speed at which it zooms out
-          });
-      });
+ 
 }
 function getFeatures(map,dataDictionary,blockGroup,tract,county){
     
