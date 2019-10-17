@@ -35,8 +35,7 @@ $(function() {
       .defer(d3.csv,"data_census/census_county.csv")
       .await(dataDidLoad);
   })
-
-function reverse(map,cities){
+ function reverse(map,cities){
     reversing=true
   var allLayers = map.getStyle().layers
   var allSources = map.getStyle().sources

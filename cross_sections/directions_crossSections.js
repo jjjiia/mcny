@@ -46,6 +46,7 @@ function dataDidLoad(error,dataDictionaryFile){
         zoom:12,
         minZoom:10,
         maxZoom:18,
+        speed:.1
       //  pitch: 60//, // pitch in degrees
         //bearing: -20, // bearing in degrees
 //        maxBounds: bounds // Sets bounds as max
@@ -65,7 +66,8 @@ function dataDidLoad(error,dataDictionaryFile){
       steps: true,
       geometries: 'polyline',
         profile:"walking",
-      controls: {instructions: false, inputs:false}
+      controls: {instructions: false, inputs:false},
+       speed:.1
     });
     
     map.on("move",function(){
@@ -198,9 +200,10 @@ function getDirectionsData(directions,map){
                   return bounds.extend(coord);
               }, new mapboxgl.LngLatBounds(directionsPath[0], directionsPath[0]));
 
-     // map.fitBounds(bounds, {
-     //     padding: 200         
-     // });
+      map.fitBounds(bounds, {
+          padding: 200,
+          speed:.2         
+      });
       map.on("moveend",function(){         
         var zoomLevel = map.getZoom()        
          })
@@ -538,7 +541,7 @@ function drawPath(geoids,map,data,drawnZoom){
    // .style("border","1px solid "+colors[lineCount])
     .style("background-color","rgba(255,255,255,.95)")
     .style("margin","5px")
-        .style("margin-left",lineCount*3+"px")
+      //  .style("margin-left",lineCount*3+"px")
     
     
   //  d3.select("."+panel).append("div").html("&#10005").style("color",lineColor).style("font-size","40px")
