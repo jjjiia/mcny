@@ -15,15 +15,16 @@ var restTimer =0
 var map
 var mouseLng = 0
 var mouseLat = 0
-var mcny = [-73.951372,40.792811]
+var mcny = [-73.95,40.79]
 var pub = {
-    speed:.3,
-    curve:1,
+    speed:.2,
+    curve:.5,
     startZoom:15.5,
-    minZoom:4.01,
+    minZoom:9.2,
     maxZoom:15.5,
     power:0,
-    maxLimit:15
+    maxLimit:15,
+    minLimit:9.5
 }
 $(function() {
   	queue()
@@ -51,14 +52,14 @@ $(function() {
             map.removeSource(s)
         }
     }
-        var randomIndex = getRandomInt(0, cities.length)
-        var currentCity = cities[randomIndex]
+        var randomIndex = getRandomInt(0, neighborhoods.length)
+        var currentCity = neighborhoods[randomIndex]
     
         var cityDisplayString = currentCity.city+", "+currentCity.state+"<br/>"+currentCity.longitude+", "+currentCity.latitude
         d3.select("#nextLocation").html(cityDisplayString).style("text-align","right")
         //.transition().delay(3000).style("opacity",0).remove()
          map.flyTo({
-             center:[-73.951372,40.792811],//[currentCity.longitude,currentCity.latitude],
+             center:[currentCity.latitude,currentCity.longitude],//[-73.951372,40.792811],//
                zoom: 16,
                speed: pub.speed // make the flying slow
            });
@@ -114,7 +115,8 @@ function deg2rad(deg) {
   return deg * (Math.PI/180)
 }
 
-function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {  
+function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) { 
+    //console.log(neighborhoods) 
     var randomIndex = getRandomInt(0, cities.length)
     var currentCity = cities[randomIndex]
     //[-73.978169,40.75136]//
@@ -128,8 +130,10 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
     var countyDataById = makeCensusDictionary(county)
     
     var bounds = [
-        [-74.733715,40.491345], // Southwest coordinates
-        [-72.770432,41.285072]  // Northeast coordinates
+        [-74.7,30.29], // Southwest coordinates
+        [-72.9,41.29]  // Northeast coordinates
+        
+        //[-73.95,40.79]
     ];
     mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
     map = new mapboxgl.Map({
@@ -139,7 +143,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         maxZoom: pub.maxZoom,
         minZoom: pub.minZoom,
         zoom: pub.startZoom,
-        interactive: false
+        interactive: false//,
        // maxBounds: bounds // Sets bounds as max
         
     });
@@ -157,7 +161,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         reversing=false          
         d3.select("#introText").remove()
           map.flyTo({
-                center:[-98.35,39],
+                center:[-73.95,40.79],
                 zoom: pub.minZoom,
                 speed: pub.speed, // make the flying slow
                 curve: pub.curve // change the speed at which it zooms out
@@ -172,8 +176,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
       //  firstFrame(map,blockGroupDataById)
 
     })
-    map.on("move",function(){
-        
+    map.on("move",function(){        
         map.boxZoom.disable();
         map.scrollZoom.disable();
         map.dragPan.disable();
@@ -187,15 +190,15 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
     map.on("moveend",function(){
         removeAllFrameLayers(map)
         
-        if(map.getZoom()>12.5){
+        if(map.getZoom()>pub.maxLimit){
             map.flyTo({
-                      center:[-98.35,39],
+                      center:[-73.95,40.79],
                       zoom: pub.minZoom,
                       speed: pub.speed, // make the flying slow
                       curve: pub.curve // change the speed at which it zooms out
                   });
               }
-              else if(map.getZoom()<4.1){
+              else if(map.getZoom()<pub.minLimit){
                     //console.log(map.getStyle().layers)
                     d3.select("#fly2").html("click on map to go to place").style("opacity",1)
                   
@@ -214,12 +217,14 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
                   setInterval(function(){
                       restTimer+=1 
                       //console.log(restTimer)
-                    if(restTimer>5){
-                        var randomIndex = getRandomInt(0, cities.length)
-                        var currentCity = cities[randomIndex]
+                    if(restTimer>15){
+                        var randomIndex = getRandomInt(0, neighborhoods.length)
+                        var currentCity = neighborhoods[randomIndex]
                         flying = true
+                        console.log([currentCity.latitude, currentCity.longitude])
                         map.flyTo({
-                            center:[-73.951372,40.792811],//[currentCity.longitude,currentCity.latitude],
+                            center:[currentCity.latitude,currentCity.longitude],
+                            //[-73.951372,40.792811],//[currentCity.longitude,currentCity.latitude],//
                               zoom: pub.maxZoom,
                               speed: pub.speed, // make the flying slow
                               curve: pub.curve // change the speed at which it zooms out
@@ -277,7 +282,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
             reversing = false
         
             map.flyTo({
-                  center:[-98.35,39],
+                  center:[-73.95,40.79],
                   zoom: pub.minZoom,
                   speed: pub.speed, // make the flying slow
                   curve: pub.curve // change the speed at which it zooms out
@@ -504,7 +509,7 @@ function addButtonFly(map){
     reversing=false          
       d3.select("#introText").remove()
         map.flyTo({
-              center:[-98.35,39],
+              center:[-73.95,40.79],
               zoom: pub.minZoom,
               speed: pub.speed, // make the flying slow
               curve: pub.curve // change the speed at which it zooms out
