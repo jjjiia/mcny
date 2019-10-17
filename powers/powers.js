@@ -58,7 +58,7 @@ $(function() {
         d3.select("#nextLocation").html(cityDisplayString).style("text-align","right")
         //.transition().delay(3000).style("opacity",0).remove()
          map.flyTo({
-           center:[currentCity.longitude,currentCity.latitude],
+             center:[-73.951372,40.792811],//[currentCity.longitude,currentCity.latitude],
                zoom: 16,
                speed: pub.speed // make the flying slow
            });
@@ -217,7 +217,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
                         var currentCity = cities[randomIndex]
                         flying = true
                         map.flyTo({
-                              center:[currentCity.longitude,currentCity.latitude],
+                            center:[-73.951372,40.792811],//[currentCity.longitude,currentCity.latitude],
                               zoom: pub.maxZoom,
                               speed: pub.speed, // make the flying slow
                               curve: pub.curve // change the speed at which it zooms out
