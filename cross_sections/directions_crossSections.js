@@ -330,7 +330,7 @@ function drawDirections(mouseList,map){
                     "coordinates": start
                 },
                 "properties":{
-                    "title":"A"
+                    "title":"Start"
                 }
             },{
                 "type": "Feature",
@@ -339,7 +339,7 @@ function drawDirections(mouseList,map){
                     "coordinates":end
                 },
                 "properties":{
-                    "title":"B"
+                    "title":"End"
                 }
             }]
         }
@@ -596,8 +596,8 @@ function drawChart(distances,data,geoids,column,map,keys,panel,drawnZoom){
     
     
     svg.append("text").text(Math.round(pathDistance*100)/100+" mi").attr("x",width/2).attr("y",height-10).style("fill",lineChartColor)
-    svg.append("text").text("A").attr("x",margin*2).attr("y",height-10).style("fill",lineChartColor)
-    svg.append("text").text("B").attr("x",width-margin).attr("y",height-10).style("fill",lineChartColor)
+    svg.append("text").text("Start").attr("x",margin*2).attr("y",height-10).style("fill",lineChartColor)
+    svg.append("text").text("End").attr("x",width-margin).attr("y",height-10).style("fill",lineChartColor)
 
     var filteredData = []
     
