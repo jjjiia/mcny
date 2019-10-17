@@ -17,7 +17,7 @@ var mouseLng = 0
 var mouseLat = 0
 var mcny = [-73.951372,40.792811]
 var pub = {
-    speed:.05,
+    speed:.1,
     curve:1,
     startZoom:15.5,
     minZoom:4.01,
