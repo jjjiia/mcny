@@ -201,7 +201,7 @@ function getDirectionsData(directions,map){
               }, new mapboxgl.LngLatBounds(directionsPath[0], directionsPath[0]));
 
       map.fitBounds(bounds, {
-          padding: 200,
+          padding: window.innerHeight*.1,
           speed:.2         
       });
       map.on("moveend",function(){         
