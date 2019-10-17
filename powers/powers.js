@@ -17,12 +17,13 @@ var mouseLng = 0
 var mouseLat = 0
 var mcny = [-73.951372,40.792811]
 var pub = {
-    speed:.1,
+    speed:.05,
     curve:1,
-    startZoom:13,
+    startZoom:15.5,
     minZoom:4.01,
-    maxZoom:13,
-    power:0
+    maxZoom:15.5,
+    power:0,
+    maxLimit:15
 }
 $(function() {
   	queue()
@@ -148,6 +149,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         //map["keyboard"].disable()
         //map["dragRotate"].disable()
        // addMapLayers(map)
+            d3.selectAll(".mapboxgl-ctrl-bottom-left").remove()
         addButtonFly(map)
         document.getElementById('fly').addEventListener('click', function() {
             flying = true
@@ -163,8 +165,8 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
         })
         var isAtStart = true;
     
-        map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'})); 
-        map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'metric'})); 
+       // map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'imperial'})); 
+    //    map.addControl(new mapboxgl.ScaleControl({maxWidth: 100,unit: 'metric'})); 
         d3.select(".mapboxgl-ctrl-bottom-right").remove()       
       //  firstFrame(map,blockGroupDataById)
 
@@ -211,7 +213,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
                   setInterval(function(){
                       restTimer+=1 
                       //console.log(restTimer)
-                    if(restTimer>15){
+                    if(restTimer>5){
                         var randomIndex = getRandomInt(0, cities.length)
                         var currentCity = cities[randomIndex]
                         flying = true
@@ -250,7 +252,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
       d3.select("#fly2").html("").style("opacity",0)
       
         if(flying==true){
-            if(map.getZoom()<13.5){
+            if(map.getZoom()<pub.maxLimit){
                 if(timer%timeInterval==0){
                     d3.selectAll(".marker").remove()
                    // d3.selectAll(".topics").transition().duration(1000).style("opacity",0)
@@ -260,7 +262,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
                     var geoids = getFeatures(map,dataDictionary,blockGroupDataById,tractDataById,countyDataById)
                 }
             }     
-        }else if (map.getZoom()>13.5){
+        }else if (map.getZoom()>pub.maxLimit){
                     d3.selectAll(".marker").remove()
                     timer+=timeInterval
             
