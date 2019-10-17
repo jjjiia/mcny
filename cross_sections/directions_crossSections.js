@@ -535,6 +535,7 @@ function drawPath(geoids,map,data,drawnZoom){
   //      d3.selectAll(".panelicon").style("border","4px solid #ffffff")
   //      d3.select(".icon_"+panel).style("border","1px solid #ffffff")
   //  })
+    d3.selectAll(".panel").remove()
     
     var panelDiv = d3.select("#charts").append("div").attr("class",panel+" panel")
     .style("z-index", panelZ)//.style("top",lineCount*15+"px")
