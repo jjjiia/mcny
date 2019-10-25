@@ -138,7 +138,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
     mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
     map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/jjjiia123/cjd9bcmhe14kj2so4ze5y812e',
+        style: 'mapbox://styles/jjjiia123/ck1uujzb803il1cpyyr59q8ba',
         center: currentCenter,
         maxZoom: pub.maxZoom,
         minZoom: pub.minZoom,
