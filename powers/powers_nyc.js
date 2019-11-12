@@ -23,7 +23,7 @@ var pub = {
     minZoom:9.2,
     maxZoom:15.5,
     power:0,
-    maxLimit:15,
+    maxLimit:15.3,
     minLimit:9.5
 }
 $(function() {
@@ -189,6 +189,8 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
     
     map.on("moveend",function(){
         removeAllFrameLayers(map)
+        d3.select("#powerBase").html("")
+        
         
         if(map.getZoom()>pub.maxLimit){
             map.flyTo({
@@ -205,7 +207,7 @@ function dataDidLoad(error,cities,dataDictionary,blockGroup,tract,county) {
                   map.on("click", function(){
                       var zoomLevel = map.getZoom()
                         d3.select("#powerBase").html("")
-                        d3.select(".topics").html("")
+                        d3.selectAll(".topics").html("")
         
                           map.jumpTo({
                                 center:[mouseLng, mouseLat],
@@ -520,8 +522,8 @@ function addButtonFly(map){
  
 }
 function getFeatures(map,dataDictionary,blockGroup,tract,county){
-    
     var zoomLevel = map.getZoom();
+    console.log(zoomLevel)
   // console.log("get features at zoom "+zoomLevel)
    
     if(zoomLevel>=10){

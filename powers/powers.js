@@ -21,9 +21,9 @@ var pub = {
     curve:1,
     startZoom:15.5,
     minZoom:4.01,
-    maxZoom:15.5,
+    maxZoom:14.9,
     power:0,
-    maxLimit:15
+    maxLimit:14.9
 }
 $(function() {
   	queue()
